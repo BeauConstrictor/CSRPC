@@ -1,21 +1,24 @@
-all: build/test build/server.o build/client
+all: build/libcsrpc.a build/send-cmd
 
 build/:
 	mkdir -p build/
 
-build/test: build/test.o build/server.o
-	gcc build/test.o build/server.o -o build/test
-
 build/server.o: src/server.c
-	gcc -Wall -Wextra -c src/server.c -o build/server.o
+	gcc -Wall -Wextra -c $< -o $@
 
-build/test.o: src/test.c src/server.c build/client
-	gcc -Wall -Wextra -c src/test.c -o build/test.o
+build/send-cmd: src/client.c
+	gcc -Wall -Wextra $< -o $@
 
-build/client: src/client.c
-	gcc -Wall -Wextra src/client.c -o build/client
+build/libcsrpc.a: build/server.o
+	ar rcs $@ $^
 
-.PHONY: all run
+build/test: src/test.c build/libcsrpc.a build/send-cmd
+	gcc $< -L./build/ -lcsrpc -o $@
+
+.PHONY: all run clean
+
+clean:
+	rm build/*
 
 run: build/test
 	build/test

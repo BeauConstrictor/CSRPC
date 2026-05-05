@@ -4,8 +4,6 @@
 
 #include "server.h"
 
-const char *cmd = "./build/client echo hello world";
-
 struct csrpc_resp rpc_handler(struct csrpc_call *call, void *_) {
   unsigned int argc = call->argc;
   char **args = call->args;
@@ -24,7 +22,7 @@ struct csrpc_resp rpc_handler(struct csrpc_call *call, void *_) {
 }
 
 int main() {
-  csrpc_run("client cmd arg1 arg2",
+  csrpc_run("send-cmd cmd arg1 arg2 ...",
             "./build/", rpc_handler, NULL);
   return 0;
 }
