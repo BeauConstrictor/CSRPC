@@ -184,14 +184,23 @@ void csrpc_wrap(pid_t pid, t_csrpc_handler handler,
 
 void csrpc_run(char *cmd, char *binpath, t_csrpc_handler handler,
                void *user_state) {
-  setenv("CSRPC_PATH", CSRPC_PATH, 1);
+  pid_t pid = fork();
 
-  char *orig_path = getenv("PATH");
-  char new_path[1024];
-  snprintf(new_path, sizeof(new_path), "%s:%s", binpath, orig_path);
-  setenv("PATH", new_path, 1);
+  if (pid == 0) {
+    setenv("CSRPC_PATH", CSRPC_PATH, 1);
 
-  FILE *fp = popen(cmd, "r");
+    char *orig_path = getenv("PATH");
+    char new_path[1024];
+    snprintf(new_path, sizeof(new_path), "%s:%s", binpath, orig_path);
+    setenv("PATH", new_path, 1);
+
+    execl("/bin/sh", "bash", "-c", cmd, NULL);
+    perror("csrpc");
+    return;
+  } else if (pid <= 0) {
+    perror("csrpc");
+    return;
+  }
 
   csrpc_wrap(pid, handler, user_state);
 }
