@@ -26,6 +26,7 @@ Here is a simple example:
 
 ```c
 #include <string.h>
+#include <stdlib.h>
 #include <stdio.h>
 
 #include "csrpc.h"
@@ -40,12 +41,19 @@ int main() {
     if (!fgets(buf, sizeof(buf), stdin))
         break;
 
-    buf[strcspn(buf, "\n")] = 0;
+    buf[strcspn(buf, "\n")] = '\0';
 
     if (strcmp(buf, "exit") == 0) return 0;
 
-    csrpc_run(buf, "csrpc-lib", NULL, NULL);
+    FILE* f = csrpc_run(buf, "./build/", NULL, NULL);
+    int c;
+    while ((c = fgetc(f)) != EOF) {
+      putchar(c);
+    }
+    fclose(f);
   }
+
+  return 0;
 }
 ```
 

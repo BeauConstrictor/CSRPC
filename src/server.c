@@ -14,7 +14,8 @@
 #define EOT '\x04'
 #define BUFSIZE 128
 
-const char *CSRPC_PATH = "/tmp/csrpc";
+const char *CSRPC_PATH   = "/tmp/csrpc";
+const char *CSRPC_OUTPUT = "/tmp/csrpc-out";
 
 struct server {
   int listen_fd;
@@ -183,25 +184,32 @@ void csrpc_wrap(pid_t pid, t_csrpc_handler handler,
   }
 }
 
-void csrpc_run(char *cmd, char *binpath, t_csrpc_handler handler,
+FILE *csrpc_run(char *cmd, char *binpath, t_csrpc_handler handler,
                void *user_state) {
   pid_t pid = fork();
 
   if (pid == 0) {
     setenv("CSRPC_PATH", CSRPC_PATH, 1);
+    setenv("CSRPC_OUTPUT", CSRPC_OUTPUT, 1);
 
     char *orig_path = getenv("PATH");
     char new_path[1024];
     snprintf(new_path, sizeof(new_path), "%s:%s", binpath, orig_path);
     setenv("PATH", new_path, 1);
 
-    execl("/bin/sh", "bash", "-c", cmd, NULL);
+    char redirected_cmd[2048];
+    snprintf(redirected_cmd, sizeof(redirected_cmd),
+        "%s; >\"$CSRPC_OUTPUT\" 2>&1", cmd);
+
+    execl("/bin/sh", "sh", "-c", redirected_cmd, NULL);
     perror("csrpc");
-    return;
+    return NULL;
   } else if (pid <= 0) {
     perror("csrpc");
-    return;
+    return NULL;
   }
 
   csrpc_wrap(pid, handler, user_state);
+
+  return fopen(CSRPC_OUTPUT, "r");
 }

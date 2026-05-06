@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdlib.h>
 #include <stdio.h>
 
 #include "csrpc.h"
@@ -17,6 +18,13 @@ int main() {
 
     if (strcmp(buf, "exit") == 0) return 0;
 
-    csrpc_run(buf, "./build/", NULL, NULL);
+    FILE* f = csrpc_run(buf, "./build/", NULL, NULL);
+    int c;
+    while ((c = fgetc(f)) != EOF) {
+      putchar(c);
+    }
+    fclose(f);
   }
+
+  return 0;
 }

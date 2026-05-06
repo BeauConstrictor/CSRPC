@@ -20,6 +20,8 @@
 
 // path of csrpc's socket; hardcoded in the library.
 extern const char *CSRPC_PATH;
+// path of csrpc's csrpc_run() output file; hardcoded in the library.
+extern const char *CSRPC_OUTPUT;
 
 // usually, args[0] will be used as the name of the command to run,
 // and this will be parsed in the handler by a command dispatcher.
@@ -44,7 +46,10 @@ void csrpc_wrap(pid_t pid, t_csrpc_handler handler, void *user_state);
 
 // run a shell command, with binpath added to the start of it's PATH.
 // everything else is the same as with csrpc_wrap().
-void csrpc_run(char *cmd, char *binpath, t_csrpc_handler handler,
+// - read from FILE* to get the output (stdout & err) of the command.
+// - make sure to fclose the FILE* afterward.
+// - on error, FILE* will be NULL.
+FILE *csrpc_run(char *cmd, char *binpath, t_csrpc_handler handler,
                void *user_state);
 
 #endif // CSRPC_H
