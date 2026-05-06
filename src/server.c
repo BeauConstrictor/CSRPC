@@ -96,7 +96,8 @@ static void exec_call(struct csrpc_call *call, t_csrpc_handler handler,
     for (unsigned int i = 1; i < call->argc; i++) {
       printf("\"%s\", ", call->args[i]);
     }
-    printf("\b\b) \n");
+    if (call->argc > 1) printf("\b\b");
+    printf(") \n");
   }
 }
 
