@@ -16,6 +16,8 @@
 #ifndef CSRPC_H
 #define CSRPC_H
 
+#include <sys/types.h>
+
 // path of csrpc's socket; hardcoded in the library.
 extern const char *CSRPC_PATH;
 

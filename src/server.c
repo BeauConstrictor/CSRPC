@@ -9,7 +9,7 @@
 #include <errno.h>
 #include <fcntl.h>
 
-#include "server.h"
+#include "csrpc.h"
 
 #define EOT '\x04'
 #define BUFSIZE 128
@@ -84,7 +84,7 @@ static bool parse_call(char *buf, struct csrpc_call *call) {
 
 static void exec_call(struct csrpc_call *call, t_csrpc_handler handler,
                void *user_state, struct csrpc_resp *resp) {
-  resp->response = strdup("no handler defined");
+  resp->response = strdup("no handler defined\n");
   resp->status = 1;
 
   if (handler) {
@@ -96,7 +96,7 @@ static void exec_call(struct csrpc_call *call, t_csrpc_handler handler,
     for (unsigned int i = 1; i < call->argc; i++) {
       printf("\"%s\", ", call->args[i]);
     }
-    printf("\b\b) \b");
+    printf("\b\b) \n");
   }
 }
 
@@ -184,23 +184,14 @@ void csrpc_wrap(pid_t pid, t_csrpc_handler handler,
 
 void csrpc_run(char *cmd, char *binpath, t_csrpc_handler handler,
                void *user_state) {
-  pid_t pid = fork();
+  setenv("CSRPC_PATH", CSRPC_PATH, 1);
 
-  if (pid == 0) {
-    setenv("CSRPC_PATH", CSRPC_PATH, 1);
+  char *orig_path = getenv("PATH");
+  char new_path[1024];
+  snprintf(new_path, sizeof(new_path), "%s:%s", binpath, orig_path);
+  setenv("PATH", new_path, 1);
 
-    char *orig_path = getenv("PATH");
-    char new_path[1024];
-    snprintf(new_path, sizeof(new_path), "%s:%s", binpath, orig_path);
-    setenv("PATH", new_path, 1);
-
-    execl("/bin/sh", "bash", "-c", cmd, NULL);
-    perror("csrpc");
-    return;
-  } else if (pid <= 0) {
-    perror("csrpc");
-    return;
-  }
+  FILE *fp = popen(cmd, "r");
 
   csrpc_wrap(pid, handler, user_state);
 }

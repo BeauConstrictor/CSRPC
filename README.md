@@ -20,7 +20,7 @@ $ make
 ```
 
 This will create a `libcsrpc.a`, which you can use to call shell scripts,
-wrapping them with `csrpc` (you can find `csrpc.h` in `src/`).
+wrapping them with `csrpc` (you can find `csrpc.h` in `include/`).
 
 Here is a simple example:
 
@@ -41,6 +41,8 @@ int main() {
         break;
 
     buf[strcspn(buf, "\n")] = 0;
+
+    if (strcmp(buf, "exit") == 0) return 0;
 
     csrpc_run(buf, "csrpc-lib", NULL, NULL);
   }
