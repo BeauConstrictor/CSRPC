@@ -194,12 +194,16 @@ FILE *csrpc_run(char *cmd, char *binpath, t_csrpc_handler handler,
 
     char *orig_path = getenv("PATH");
     char new_path[1024];
-    snprintf(new_path, sizeof(new_path), "%s:%s", binpath, orig_path);
+    snprintf(new_path, sizeof(new_path), "%s:%s", binpath,
+        orig_path);
     setenv("PATH", new_path, 1);
 
+    char trimmed_cmd[2048-24];
+    snprintf(trimmed_cmd, sizeof(trimmed_cmd), "%s", cmd);
+    trimmed_cmd[strcspn(trimmed_cmd, "\n")] = '\0';
     char redirected_cmd[2048];
     snprintf(redirected_cmd, sizeof(redirected_cmd),
-        "%s; >\"$CSRPC_OUTPUT\" 2>&1", cmd);
+        "(%s) >\"$CSRPC_OUTPUT\" 2>&1", trimmed_cmd);
 
     execl("/bin/sh", "sh", "-c", redirected_cmd, NULL);
     perror("csrpc");
