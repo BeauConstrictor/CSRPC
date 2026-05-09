@@ -12,7 +12,7 @@
 #include "csrpc.h"
 
 #define EOT '\x04'
-#define BUFSIZE 128
+#define BUFSIZE 2048
 
 const char *CSRPC_PATH   = "/tmp/csrpc";
 const char *CSRPC_OUTPUT = "/tmp/csrpc-out";
@@ -35,7 +35,7 @@ static int create_server_socket(const char *path) {
   memset(&addr, 0, sizeof(addr));
 
   addr.sun_family = AF_UNIX;
-  strncpy(addr.sun_path, path, sizeof(addr.sun_path) - 1);
+  snprintf(addr.sun_path, sizeof(addr.sun_path), "%s", path);
   unlink(path);
 
   if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
@@ -184,8 +184,8 @@ void csrpc_wrap(pid_t pid, t_csrpc_handler handler,
   }
 }
 
-FILE *csrpc_run(char *cmd, char *binpath, t_csrpc_handler handler,
-               void *user_state) {
+FILE *csrpc_run(char *cmd, char *initpath, char *binpath,
+    t_csrpc_handler handler, void *user_state) {
   pid_t pid = fork();
 
   if (pid == 0) {
@@ -203,7 +203,8 @@ FILE *csrpc_run(char *cmd, char *binpath, t_csrpc_handler handler,
     trimmed_cmd[strcspn(trimmed_cmd, "\n")] = '\0';
     char redirected_cmd[2048];
     snprintf(redirected_cmd, sizeof(redirected_cmd),
-        "(%s) >\"$CSRPC_OUTPUT\" 2>&1", trimmed_cmd);
+        "(source \"%s\"; %s) >\"$CSRPC_OUTPUT\" 2>&1",
+        initpath, trimmed_cmd);
 
     execl("/bin/sh", "sh", "-c", redirected_cmd, NULL);
     perror("csrpc");

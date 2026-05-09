@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
   struct sockaddr_un addr;
   memset(&addr, 0, sizeof(addr));
   addr.sun_family = AF_UNIX;
-  strcpy(addr.sun_path, path);
+  snprintf(addr.sun_path, sizeof(addr.sun_path), "%s", path);
 
   if (connect(fd, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
     perror("csrpc");
@@ -50,5 +50,7 @@ int main(int argc, char *argv[]) {
   int status = strtoll(buf, &s, 10);
   s++;
   printf("%s", s);
+
+  close(fd);
   return status;
 }

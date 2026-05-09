@@ -49,7 +49,10 @@ void csrpc_wrap(pid_t pid, t_csrpc_handler handler, void *user_state);
 // - read from FILE* to get the output (stdout & err) of the command.
 // - make sure to fclose the FILE* afterward.
 // - on error, FILE* will be NULL.
-FILE *csrpc_run(char *cmd, char *binpath, t_csrpc_handler handler,
-               void *user_state);
+// - the script at initpath will be sourced, so you can use it to add
+//   functions, environment variables and so on. you can not use
+//   aliases, as they are only supported in interactive mode.
+FILE *csrpc_run(char *cmd, char *initpath, char *binpath,
+        t_csrpc_handler handler, void *user_state);
 
 #endif // CSRPC_H

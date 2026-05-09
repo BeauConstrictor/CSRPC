@@ -18,7 +18,7 @@ int main() {
 
     if (strcmp(buf, "exit") == 0) return 0;
 
-    FILE* f = csrpc_run(buf, "./build/", NULL, NULL);
+    FILE* f = csrpc_run(buf, "./init.sh", "./build/", NULL, NULL);
     int c;
     while ((c = fgetc(f)) != EOF) {
       putchar(c);
