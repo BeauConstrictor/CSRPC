@@ -184,19 +184,13 @@ void csrpc_wrap(pid_t pid, t_csrpc_handler handler,
   }
 }
 
-FILE *csrpc_run(char *cmd, char *initpath, char *binpath,
-    t_csrpc_handler handler, void *user_state) {
+FILE *csrpc_run(char *cmd, char *initpath, t_csrpc_handler handler,
+    void *user_state) {
   pid_t pid = fork();
 
   if (pid == 0) {
     setenv("CSRPC_PATH", CSRPC_PATH, 1);
     setenv("CSRPC_OUTPUT", CSRPC_OUTPUT, 1);
-
-    char *orig_path = getenv("PATH");
-    char new_path[1024];
-    snprintf(new_path, sizeof(new_path), "%s:%s", binpath,
-        orig_path);
-    setenv("PATH", new_path, 1);
 
     char trimmed_cmd[2048-24];
     snprintf(trimmed_cmd, sizeof(trimmed_cmd), "%s", cmd);

@@ -44,15 +44,13 @@ typedef struct csrpc_resp (*t_csrpc_handler)(
 // a call. user_state is passed directly to the handler.
 void csrpc_wrap(pid_t pid, t_csrpc_handler handler, void *user_state);
 
-// run a shell command, with binpath added to the start of it's PATH.
+// run a shell command, with initpath sourced as a shell script so
+// that you can add custom environment variables and functions.
 // everything else is the same as with csrpc_wrap().
 // - read from FILE* to get the output (stdout & err) of the command.
 // - make sure to fclose the FILE* afterward.
 // - on error, FILE* will be NULL.
-// - the script at initpath will be sourced, so you can use it to add
-//   functions, environment variables and so on. you can not use
-//   aliases, as they are only supported in interactive mode.
-FILE *csrpc_run(char *cmd, char *initpath, char *binpath,
-        t_csrpc_handler handler, void *user_state);
+FILE *csrpc_run(char *cmd, char *initpath, t_csrpc_handler handler,
+        void *user_state);
 
 #endif // CSRPC_H

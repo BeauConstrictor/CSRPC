@@ -1,1 +1,1 @@
-sc() { send-cmd $@; }
+sc() { ./build/send-cmd $@; }
