@@ -197,7 +197,7 @@ FILE *csrpc_run(char *cmd, char *initpath, t_csrpc_handler handler,
     trimmed_cmd[strcspn(trimmed_cmd, "\n")] = '\0';
     char redirected_cmd[2048];
     snprintf(redirected_cmd, sizeof(redirected_cmd),
-        "(source \"%s\"; %s) >\"$CSRPC_OUTPUT\" 2>&1",
+        "(. \"%s\"; %s) >\"$CSRPC_OUTPUT\" 2>&1",
         initpath, trimmed_cmd);
 
     execl("/bin/sh", "sh", "-c", redirected_cmd, NULL);
