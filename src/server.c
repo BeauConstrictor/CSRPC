@@ -192,13 +192,16 @@ FILE *csrpc_run(char *cmd, char *initpath, t_csrpc_handler handler,
     setenv("CSRPC_PATH", CSRPC_PATH, 1);
     setenv("CSRPC_OUTPUT", CSRPC_OUTPUT, 1);
 
-    char trimmed_cmd[2048-24];
+    setenv("CSRPC_INIT", initpath, 1);
+
+    char trimmed_cmd[1024];
     snprintf(trimmed_cmd, sizeof(trimmed_cmd), "%s", cmd);
     trimmed_cmd[strcspn(trimmed_cmd, "\n")] = '\0';
+
     char redirected_cmd[2048];
+    setenv("CSRPC_CMD", trimmed_cmd, 1);
     snprintf(redirected_cmd, sizeof(redirected_cmd),
-        "(. \"%s\"; %s) >\"$CSRPC_OUTPUT\" 2>&1",
-        initpath, trimmed_cmd);
+        "(. \"$CSRPC_INIT\"; eval \"$CSRPC_CMD\") >\"$CSRPC_OUTPUT\" 2>&1");
 
     execl("/bin/sh", "sh", "-c", redirected_cmd, NULL);
     perror("csrpc");
