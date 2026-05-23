@@ -1,5 +1,5 @@
-CCOMP ?= gcc
-CCFLAGS ?= -Wall -Wextra -Werror
+CCOMP ?= clang
+CCFLAGS ?= -g -Wall -Wextra -Werror
 
 all: build/libcsrpc.a build/send-cmd
 

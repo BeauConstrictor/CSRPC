@@ -14,7 +14,7 @@ const char *helptext = ""
 int main() {
   char buf[256];
 
-  printf(helptext);
+  printf("%s", helptext);
 
   while (1) {
     printf("$ ");
