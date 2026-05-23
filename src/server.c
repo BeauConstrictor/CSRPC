@@ -85,9 +85,6 @@ static bool parse_call(char *buf, struct csrpc_call *call) {
 
 static void exec_call(struct csrpc_call *call, t_csrpc_handler handler,
                void *user_state, struct csrpc_resp *resp) {
-  resp->response = strdup("no handler defined\n");
-  resp->status = 1;
-
   if (handler) {
     struct csrpc_resp new_resp = handler(call, user_state);
     resp->response = strdup(new_resp.response);
@@ -99,6 +96,8 @@ static void exec_call(struct csrpc_call *call, t_csrpc_handler handler,
     }
     if (call->argc > 1) printf("\b\b");
     printf(") \n");
+    resp->response = strdup("no handler defined\n");
+    resp->status = 1;
   }
 }
 
@@ -140,11 +139,11 @@ static void try_run_single_rpc_command(struct server *server,
   if (n == 1 && c == EOT) {
     struct csrpc_call call;
     if (parse_call(server->buf, &call)) {
-      struct csrpc_resp resp;
+      struct csrpc_resp resp = {0};
       exec_call(&call, handler, user_state, &resp);
       free_call(&call);
-      free(resp.response);
       write_resp(server, &resp);
+      free(resp.response);
     }
   } else if (n == 1) {
     if (server->len >= BUFSIZE) {
@@ -216,3 +215,4 @@ FILE *csrpc_run(char *cmd, char *initpath, t_csrpc_handler handler,
 
   return fopen(CSRPC_OUTPUT, "r");
 }
+
