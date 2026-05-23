@@ -143,7 +143,7 @@ static void try_run_single_rpc_command(struct server *server,
       struct csrpc_resp resp;
       exec_call(&call, handler, user_state, &resp);
       free_call(&call);
-      free(resp->respond);
+      free(resp.response);
       write_resp(server, &resp);
     }
   } else if (n == 1) {
